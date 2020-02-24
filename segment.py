@@ -97,7 +97,6 @@ c0 = wav[1][:,0]
 
 print('c0 %i'%c0.size)
 
-__import__('ipdb').set_trace()
 vad = VoiceActivityDetection(sr, ms, 1)
 vad.process(c0)
 
