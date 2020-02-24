@@ -15,8 +15,8 @@ class VoiceActivityDetection:
     def __init__(self, sr, ms, channel):
         self.__sr = sr
         self.__channel = channel
-        self.__step = sr/50
-        self.__buffer_size = sr/50 
+        self.__step = int(sr/50)
+        self.__buffer_size = int(sr/50)
         self.__buffer = numpy.array([],dtype=numpy.int16)
         self.__out_buffer = numpy.array([],dtype=numpy.int16)
         self.__n = 0
@@ -97,6 +97,7 @@ c0 = wav[1][:,0]
 
 print('c0 %i'%c0.size)
 
+__import__('ipdb').set_trace()
 vad = VoiceActivityDetection(sr, ms, 1)
 vad.process(c0)
 
