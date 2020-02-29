@@ -12,7 +12,8 @@ ms = 1000
 
 class VoiceActivityDetection:
 
-    def __init__(self, sr, ms, channel):
+    def __init__(self, sr, ms, channel, output_path):
+        self.__output_path = output_path
         self.__sr = sr
         self.__channel = channel
         self.__step = int(sr/50)
@@ -71,16 +72,13 @@ class VoiceActivityDetection:
                 window = self.get_frame()
                 # print('window size %i'%window.size)
                 if self.vad(window):  # speech frame
-                    print('voiced')
                     self.__out_buffer = numpy.append(self.__out_buffer, window)
                     self.__voice_detected = True
                 elif self.__voice_detected:
-                    print('unvoiced')
                     self.__voice_detected = False
                     self.__segment_count = self.__segment_count + 1
-                    wf.write('%s.%i.%i.wav'%(sys.argv[2],self.__channel,self.__segment_count),sr,self.__out_buffer)
+                    wf.write('%s.%i.%i.wav' % (self.__output_path, self.__channel,self.__segment_count), self.__sr, self.__out_buffer)
                     self.__out_buffer = numpy.array([],dtype=numpy.int16)
-                    print(self.__segment_count)
 
                 # print('__out_buffer size %i'%self.__out_buffer.size)
 
@@ -88,21 +86,27 @@ class VoiceActivityDetection:
         return self.__out_buffer
  
 
-# usage:
-wav = wf.read(sys.argv[1])
-ch = wav[1].shape[1]
-sr = wav[0]
+def segmentize(wav_file, output):
+    wav = wf.read(wav_file)
+    ch = wav[1].shape[1]
+    sr = wav[0]
 
-c0 = wav[1][:,0]
+    c0 = wav[1][:,0]
 
-print('c0 %i'%c0.size)
+    print('c0 %i'%c0.size)
 
-vad = VoiceActivityDetection(sr, ms, 1)
-vad.process(c0)
+    vad = VoiceActivityDetection(sr, ms, 1, output)
+    vad.process(c0)
 
-if ch==1:
-    exit()
-    
-vad = VoiceActivityDetection(sr, ms, 2)
-c1 = wav[1][:,1]
-vad.process(c1)
+    # if ch==1:
+    #     return
+        
+    # vad = VoiceActivityDetection(sr, ms, 2)
+    # c1 = wav[1][:,1]
+    # vad.process(c1)
+
+def main():
+    segmentize(sys.argv[1], sys.argv[2])
+
+if __name__ == "__main__":
+    main()
